@@ -27,3 +27,4 @@ RUN pip install --no-cache-dir -r /home/app/requirements.txt
 
 EXPOSE 8501
 
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health

@@ -72,18 +72,19 @@ class AmazonScraper:
         self._random_wait()
         self._random_wait(min_time=2, max_time=4, explicit=True)
 
-        sign_in_element = self.driver.find_element(
-            By.CSS_SELECTOR, 'a[data-nav-role="signin"]'
-        )
-        sign_in_element.click()
-        self._random_wait(explicit=True)
-
-        email_element = self.driver.find_element(By.ID, "ap_email")
-        email_element.clear()
-        email_element.send_keys(self.email)
-        continue_button = self.driver.find_element(By.ID, "continue")
-        continue_button.click()
-        self._random_wait()
+        navigated = False
+        while not navigated:
+            self._navigate_sign_in()
+            try:
+                email_element = self.driver.find_element(By.ID, "ap_email")
+            except NoSuchElementException:
+                continue
+            email_element.clear()
+            email_element.send_keys(self.email)
+            continue_button = self.driver.find_element(By.ID, "continue")
+            continue_button.click()
+            navigated = True
+            self._random_wait()
 
         password_element = self.driver.find_element(By.ID, "ap_password")
         password_element.clear()
@@ -97,6 +98,13 @@ class AmazonScraper:
             LOGGER.info("Logged in successfully!")
         except NoSuchElementException:
             raise Exception("Login failed. Could not find logged-in element.")
+
+    def _navigate_sign_in(self) -> None:
+        sign_in_element = self.driver.find_element(
+            By.CSS_SELECTOR, 'a[data-nav-role="signin"]'
+        )
+        sign_in_element.click()
+        self._random_wait(explicit=True)
 
     def close_connection(self) -> None:
         if driver := getattr(self, "driver", None):

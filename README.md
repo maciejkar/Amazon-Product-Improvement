@@ -27,6 +27,9 @@ docker compose up
 ```
 As always, you might need to add a `--build` flag to build the image for the first time.
 
+
+Open `localhost:80` then.
+
 #### Issues
 
 ❗ Sometimes logging to Amazon does not work, but after container restart everything is fine.

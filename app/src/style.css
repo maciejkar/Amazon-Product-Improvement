@@ -25,3 +25,7 @@
 .stSelectbox>div>div>div>div {
     color: #262730 !important;
 }
+
+.stAppDeployButton {
+    display: none;
+}

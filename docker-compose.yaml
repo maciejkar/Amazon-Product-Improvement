@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  streamlit-app:
+  app:
     build: .
     ports:
       - "8501:8501"
@@ -10,3 +10,12 @@ services:
     volumes:
       - ./app:/home/app
     entrypoint: ["sh", "/home/app/entrypoint.sh"]
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
