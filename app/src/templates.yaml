@@ -1,0 +1,24 @@
+summary-prompt: |
+  Analyze the following product and its reviews to suggest improvements:
+
+  Product Information:
+  Title: {title}
+  General category: {category}
+  Average Rating: {average_rating:.2f}/5.0
+
+  Customer Reviews:
+  {reviews_analysis}
+
+  Based on this information, please provide:
+  1. Key issues identified from reviews (categorized by frequency and severity) - up to 4
+  2. Specific improvement suggestions for each identified issue - up to 4
+  3. Priority of improvements (High/Medium/Low) with justification
+  4. Potential impact on customer satisfaction
+  5. Estimated complexity of implementing each suggestion (Easy/Medium/Hard)
+
+  Please format your response in a clear, structured manner with separate sections for each category.
+  Focus on actionable improvements that could directly address the customer concerns.
+  Try not to make it too long.
+
+comment-template: |
+  -> NEXT REVIEW: {comment}

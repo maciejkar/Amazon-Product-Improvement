@@ -1,0 +1,27 @@
+.big-font {
+    font-size: 2rem !important;
+    font-weight: bold;
+}
+
+.small-font {
+    font-size: 0.9rem !important;
+}
+
+.stButton>button {
+    background-color: #ff4b4b;
+    color: white !important;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5em 1em;
+}
+
+
+.stSelectbox>div>div>div {
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.stSelectbox>div>div>div>div {
+    color: #262730 !important;
+}

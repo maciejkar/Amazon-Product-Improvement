@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  streamlit-app:
+    build: .
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/home/app
+    entrypoint: ["sh", "/home/app/entrypoint.sh"]
