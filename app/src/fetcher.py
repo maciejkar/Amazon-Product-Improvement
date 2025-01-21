@@ -26,7 +26,6 @@ class AmazonScraper:
 
         self.chrome_options = Options()
         self._config_chrome()
-        self.service: Service = Service(settings.CHROME_DRIVER_PATH)
 
         self.driver: WebDriver
 
@@ -56,6 +55,7 @@ class AmazonScraper:
             self.driver.implicitly_wait(wait_time)
 
     def open_connection(self) -> None:
+        self.close_connection()
         try:
             self._open_connection()
         except WebDriverException as e:
@@ -65,7 +65,7 @@ class AmazonScraper:
 
     def _open_connection(self) -> None:
         self.driver = webdriver.Chrome(
-            service=self.service, options=self.chrome_options
+            service=Service(settings.CHROME_DRIVER_PATH), options=self.chrome_options
         )
         self.driver.maximize_window()
         self.driver.get("https://www.amazon.com")

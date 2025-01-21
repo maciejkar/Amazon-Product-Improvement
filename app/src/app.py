@@ -13,52 +13,18 @@ class AppToolConnectionError(Exception):
     pass
 
 
-class AppToolsMixin:
-    def __init__(self):
+class AppManager:
+    @classmethod
+    def run(cls):
         if "logger_set" not in st.session_state:
             st.session_state.logger_set = True
             setup_logging()
+        cls.set_basic_config()
+        cls.set_menu()
+        cls.set_working_section()
 
-    @property
-    def product_analyzer(self) -> ProductAnalyzer:
-        if "product_analyzer" in st.session_state:
-            return st.session_state.product_analyzer
-        st.error("Submit credentials first (Gemini).")
-        raise AppToolConnectionError
-
-    @product_analyzer.setter
-    def product_analyzer(self, value: ProductAnalyzer) -> None:
-        st.session_state.product_analyzer = value
-
-    @product_analyzer.deleter
-    def product_analyzer(self) -> None:
-        if hasattr(st.session_state, "product_analyzer"):
-            delattr(st.session_state, "product_analyzer")
-
-    @property
-    def amazon_scraper(self) -> AmazonScraper:
-        if "amazon_scraper" in st.session_state:
-            return st.session_state.amazon_scraper
-        st.error("Submit credentials first (Amazon).")
-        raise AppToolConnectionError
-
-    @amazon_scraper.setter
-    def amazon_scraper(self, value: AmazonScraper) -> None:
-        st.session_state.amazon_scraper = value
-
-    @amazon_scraper.deleter
-    def amazon_scraper(self) -> None:
-        if hasattr(st.session_state, "amazon_scraper"):
-            delattr(st.session_state, "amazon_scraper")
-
-
-class AppManager(AppToolsMixin):
-    def run(self):
-        self.set_basic_config()
-        self.set_menu()
-        self.set_working_section()
-
-    def set_basic_config(self) -> None:
+    @classmethod
+    def set_basic_config(cls) -> None:
         title = "Product Improvement Analyzer"
         icon = "📊"
         st.set_page_config(page_title=title, page_icon=icon, layout="wide")
@@ -66,7 +32,8 @@ class AppManager(AppToolsMixin):
             style = f"<style>{f.read()}</style>"
         st.markdown(style, unsafe_allow_html=True)
 
-    def set_menu(self) -> None:
+    @classmethod
+    def set_menu(cls) -> None:
         menu_title = "⚙️ Credentials"
         with st.sidebar:
             st.title(menu_title)
@@ -85,18 +52,23 @@ class AppManager(AppToolsMixin):
                 value=st.session_state.get("amazon_password", settings.PASSWORD),
             )
             if st.button("Connect"):
-                delattr(self, "product_analyzer")
-                delattr(self, "amazon_scraper")
-                self._handle_menu_submit(google_api_key, amazon_login, amazon_password)
+                if hasattr(st.session_state, "product_analyzer"):
+                    delattr(st.session_state, "product_analyzer")
+                if hasattr(st.session_state, "amazon_scraper"):
+                    delattr(st.session_state, "amazon_scraper")
+                cls._handle_menu_submit(google_api_key, amazon_login, amazon_password)
 
+    @staticmethod
     def _handle_menu_submit(
-        self, google_api_key: str, amazon_login: str, amazon_password: str
+        google_api_key: str, amazon_login: str, amazon_password: str
     ) -> None:
         if google_api_key:
             st.session_state.google_api_key = google_api_key
             try:
                 with st.spinner("Establishing connection..."):
-                    self.product_analyzer = ProductAnalyzer(api_key=google_api_key)
+                    st.session_state.product_analyzer = ProductAnalyzer(
+                        api_key=google_api_key
+                    )
                 st.success("Analyzing tools ready to use!")
             except Exception:
                 st.error("Unexpected error while connecting to Gemini.")
@@ -105,11 +77,11 @@ class AppManager(AppToolsMixin):
             st.session_state.amazon_login = amazon_login
             st.session_state.amazon_password = amazon_password
             try:
-                self.amazon_scraper = AmazonScraper(
+                st.session_state.amazon_scraper = AmazonScraper(
                     email=amazon_login, password=amazon_password
                 )
                 with st.spinner("Connecting to Amazon..."):
-                    self.amazon_scraper.open_connection()
+                    st.session_state.amazon_scraper.open_connection()
                 st.success("Amazon connected successfully!")
             except Exception:
                 st.error(
@@ -121,17 +93,20 @@ class AppManager(AppToolsMixin):
         if not (amazon_login and amazon_password):
             st.warning("Amazon credentials are incomplete.")
 
-    def set_working_section(self) -> None:
-        self._display_title()
-        self._display_product_input()
-        self._display_product_details()
+    @classmethod
+    def set_working_section(cls) -> None:
+        cls._display_title()
+        cls._display_product_input()
+        cls._display_product_details()
 
-    def _display_title(self) -> None:
+    @staticmethod
+    def _display_title() -> None:
         title = "📱 Product Improvement Analyzer"
         st.markdown(f"<p class='big-font'>{title}</p>", unsafe_allow_html=True)
         st.markdown("---")
 
-    def _display_product_input(self) -> None:
+    @classmethod
+    def _display_product_input(cls) -> None:
         col1, col2 = st.columns([5, 1])
         with col1:
             product_url = st.text_input("Enter product URL:", "")
@@ -144,36 +119,43 @@ class AppManager(AppToolsMixin):
                 delattr(st.session_state, "products_data")
             if hasattr(st.session_state, "current_summary"):
                 delattr(st.session_state, "current_summary")
-            self._load_product_data(product_url, max_pages)
-            self._generate_analysis()
+            cls._load_product_data(product_url, max_pages)
+            cls._generate_analysis()
 
-    def _load_product_data(self, product_url: str, max_pages: int) -> None:
+    @staticmethod
+    def _load_product_data(product_url: str, max_pages: int) -> None:
         if not product_url:
             st.warning("Please enter a product URL.")
             return
+        if "amazon_scraper" not in st.session_state:
+            st.error("Connect to amazon first.")
         try:
             with st.spinner("Fetching product data..."):
-                st.session_state.products_data = self.amazon_scraper.fetch_product_data(
-                    product_url, max_pages
+                st.session_state.products_data = (
+                    st.session_state.amazon_scraper.fetch_product_data(
+                        product_url, max_pages
+                    )
                 )
                 st.success("Product data loaded successfully!")
         except Exception:
             st.error("Error loading product data. Try to establish connection again.")
 
-    def _generate_analysis(self) -> None:
+    @staticmethod
+    def _generate_analysis() -> None:
         if "products_data" not in st.session_state:
             return
         data = st.session_state.products_data
 
         with st.spinner("Analyzing product reviews..."):
             try:
-                summary = self.product_analyzer.analyze_product(data)
+                summary = st.session_state.product_analyzer.analyze_product(data)
                 st.session_state.current_summary = summary
                 st.success("Analysis generated successfully!")
             except Exception:
                 st.error("An error occured during analysis.")
 
-    def _display_product_details(self) -> None:
+    @staticmethod
+    def _display_product_details() -> None:
         if "products_data" not in st.session_state:
             return
         data = st.session_state.products_data
