@@ -34,6 +34,11 @@ ENV/
 # Streamlit
 .streamlit/
 
+######
 # Project specific
+
 data/
 *.parquet
+
+.env
+*.log
