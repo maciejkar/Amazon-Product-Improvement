@@ -3,7 +3,12 @@ from typing import Any
 
 import yaml
 from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    PromptTemplate,
+)
+from langchain_core.messages import SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import SecretStr
 
@@ -36,9 +41,19 @@ class ProductAnalyzer:
             "reviews_analysis",
             "average_rating",
         ]
-        prompt = PromptTemplate(
-            input_variables=input_variables, template=self.templates["summary-prompt"]
+
+        system_message = SystemMessage(self.templates["system-prompt"])
+        human_message = HumanMessagePromptTemplate(
+            prompt=PromptTemplate(
+                input_variables=input_variables,
+                template=self.templates["summary-prompt"],
+            )
         )
+
+        prompt = ChatPromptTemplate(
+            input_variables=input_variables, messages=[system_message, human_message]
+        )
+
         llm = ChatGoogleGenerativeAI(
             model="gemini-1.5-flash-8b",
             temperature=0.7,
