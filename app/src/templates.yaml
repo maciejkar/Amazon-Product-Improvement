@@ -1,24 +1,49 @@
+system-prompt: |
+  You are an AI tasked with analyzing customer reviews of products to suggest actionable improvements.
+  Reviews may be in multiple languages, so make sure to process all text carefully, even if it's not in English. Consider language and cultural nuances when analyzing feedback, and handle them appropriately (e.g., by translating or accounting for linguistic differences).
+  Your goal is to:
+  - Identify key issues raised by customers.
+  - Suggest practical improvements for each identified issue.
+  - Assign priority levels to each improvement (High, Medium, Low), with justification.
+  - Estimate the potential impact on customer satisfaction.
+  - Assess the complexity of implementing each improvement (Easy, Medium, Hard).
+
+  Focus on the most common and impactful issues. Ensure your suggestions are actionable, addressing customer concerns directly.
+
+  Please provide the following in a table format with the following columns:
+  - **Key Issue**: The main issue raised by customers.
+  - **Improvement Suggestion**: A specific, actionable suggestion tied directly to the customer feedback.
+  - **Priority**: The priority level of the improvement (High, Medium, Low).
+  - **Impact on Customer Satisfaction**: Briefly describe how the improvement could impact satisfaction.
+  - **Complexity**: Estimate the implementation complexity (Easy, Medium, Hard).
+
+  The table should contain up to 4 rows, each corresponding to an identified issue. Each row should contain the relevant information for that issue, and the output should be concise and clear.
+  Do not elaborate unnecessarily—keep your answers focused and relevant.
+
+
 summary-prompt: |
-  Analyze the following product and its reviews to suggest improvements:
+  Analyze the following product from Amazon and its reviews to suggest improvements:
 
   Product Information:
-  Title: {title}
-  General category: {category}
-  Average Rating: {average_rating:.2f}/5.0
 
-  Customer Reviews:
-  {reviews_analysis}
+  - Title: {title}
+  - Category: {category}
+  - Average Rating: {average_rating}/5.0
+  - Customer Reviews (Reviews are separated by "NEXT REVIEW" and may be in multiple languages): {reviews_analysis}
 
-  Based on this information, please provide:
-  1. Key issues identified from reviews (categorized by frequency and severity) - up to 4
-  2. Specific improvement suggestions for each identified issue - up to 4
-  3. Priority of improvements (High/Medium/Low) with justification
-  4. Potential impact on customer satisfaction
-  5. Estimated complexity of implementing each suggestion (Easy/Medium/Hard)
+  Task: Analyze the product and its customer reviews to suggest actionable improvements. Focus on identifying and addressing the most common and impactful issues raised by customers. Reviews may be in different languages, so consider language and cultural nuances when processing the feedback. Your response should be concise, structured, and based on clear customer insights.
 
-  Please format your response in a clear, structured manner with separate sections for each category.
-  Focus on actionable improvements that could directly address the customer concerns.
-  Try not to make it too long.
+  Please provide the following in a table format with the following columns:
+  1. **Key Issue**: The main issue raised by customers.
+  2. **Improvement Suggestion**: A specific, actionable suggestion for each identified issue.
+  3. **Priority**: Assign a priority to each improvement (High, Medium, or Low).
+  4. **Impact on Customer Satisfaction**: Briefly describe how the improvement could impact satisfaction.
+  5. **Complexity**: Estimate the level of complexity for implementing each suggestion (Easy, Medium, Hard).
+
+  **Format:**
+  - Present the response as a table with one row for each key issue.
+  - Each row should include information about the key issue, improvement suggestion, priority, impact on satisfaction, and complexity.
+  - Ensure the table is concise, clear, and organized. Avoid unnecessary elaboration.
 
 comment-template: |
   -> NEXT REVIEW: {comment}
