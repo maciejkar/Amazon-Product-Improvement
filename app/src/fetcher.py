@@ -3,7 +3,7 @@ import random
 import re
 import time
 
-from selenium import webdriver
+import undetected_chromedriver as uc  # type: ignore
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -37,6 +37,8 @@ class AmazonScraper:
         self.chrome_options.add_argument(
             "--disable-blink-features=AutomationControlled"
         )
+        self.chrome_options.add_argument("--incognito")
+        self.chrome_options.add_argument("--disable-extensions")
         self.chrome_options.add_argument("--disable-gpu")
         self.chrome_options.add_argument("--disable-dev-shm-usage")
         self.chrome_options.add_argument("--remote-debugging-port=9222")
@@ -64,7 +66,7 @@ class AmazonScraper:
             raise ScrapingError()
 
     def _open_connection(self) -> None:
-        self.driver = webdriver.Chrome(
+        self.driver = uc.Chrome(
             service=Service(settings.CHROME_DRIVER_PATH), options=self.chrome_options
         )
         self.driver.maximize_window()

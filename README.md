@@ -59,8 +59,7 @@ Log in to the VPS server via ssh, create a user and do the following steps. Note
     ```sh
     alias amazon_karczek_path="~/Amazon-Product-Improvement"
     alias cd_amazon_karczek="cd $amazon_karczek_path"
-    alias karczrun="$cd_amazon_karczek && docker compose down && git pull && docker compose --profile full up -d"
-    alias karczsee="$cd_amazon_karczek && docker compose logs -f"
+    alias karczrun="$cd_amazon_karczek && docker compose --profile full down && git pull && docker compose --profile full up -d --build"
     ```
     and run `. .bash_rc`.
 2. Clone a reporsitory to the proper folder and checkout to `production`:
@@ -83,7 +82,8 @@ Log in to the VPS server via ssh, create a user and do the following steps. Note
 ### Actions
 
 - Run github workflow to automatically deploy the app.
-- Containers outpt can be easily checket by logging in to the server via ssh and running `karczsee`.
+- Logs are in `./app/app.log`.
+
 </details>
 
 ## Technologies
