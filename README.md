@@ -70,11 +70,15 @@ Log in to the VPS server via ssh, create a user and do the following steps. Note
     git clone https://github.com/maciejkar/Amazon-Product-Improvement.git
     git checkout production
     ```
-3. Add certificate with `certbot` along with a hook to copy files it to `./certs`:
+3. Create a `.env` file with at least this entry:
+   ```env
+   DEBUG=false
+   ```
+4. Add certificate with `certbot` along with a hook to copy files it to `./certs`:
    ```sh
    sudo certbot certonly --standalone -d marcinkostrzewa.online -d www.marcinkostrzewa.online --deploy-hook "cp -r /etc/letsencrypt/live/marcinkostrzewa.com $amazon_karczek_path/certs"
    ```
-4. Make sure the secrets from `.github/workflows/deploy.yaml` are set correctly.
+5. Make sure the secrets from `.github/workflows/deploy.yaml` are set correctly.
 
 ### Actions
 
