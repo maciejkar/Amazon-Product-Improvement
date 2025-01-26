@@ -1,0 +1,65 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-source:
+    runs-on: ubuntu-latest  
+    
+    steps:
+    # Checkout repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Ensure the branch is production
+    - name: Ensure the branch is production
+      run: |
+        if [ "${{ github.ref_name }}" != "production" ]; then
+          echo "This workflow can only be run on the production branch."
+          exit 1
+        fi
+
+  single-run-test:
+    runs-on: ubuntu-latest
+    needs: check-source
+
+    steps:
+    # Checkout repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Create .env file with DEBUG=false
+    - name: Create .env File
+      run: echo "DEBUG=false" > .env
+
+    # Build and run Docker Compose for testing
+    - name: Build and Test Docker Compose
+      run: |
+        docker compose build
+        docker compose up -d
+        docker compose ps
+      env:
+        DOCKER_BUILDKIT: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: single-run-test
+
+    steps:
+    # Checkout repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Install SSH Client
+    - name: Install SSH Client
+      run: sudo apt-get update && sudo apt-get install -y sshpass
+
+    # Deploy to VPS Server via SSH
+    - name: SSH and Run Command on VPS
+      env:
+        SSH_USER: ${{ secrets.VPS_USER }}
+        SSH_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        VPS_IP: ${{ secrets.VPS_IP }}
+      run: |
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$VPS_IP" 'bash -i -c "karczrun"'
