@@ -23,9 +23,9 @@ Set up the env variables by copying `./sample.dev.env` to `./.env`. You can alte
 
 In the main directory run
 ```sh
-docker compose up
+docker compose --profile dev up
 ```
-As always, you might need to add a `--build` flag to build the image for the first time.
+As always, you need to run a `docker compose build` flag to build the image for the first time.
 
 
 Open `localhost:80` then.
@@ -46,6 +46,41 @@ pip install -r requirements.txt
 cd app
 streamlit run runapp.py
 ```
+
+## Deployment
+<details>
+<summary>See the VPS deployment guide</summary>
+
+### Initial setup
+
+Log in to the VPS server via ssh, create a user and do the following steps. Note, that if the domain `marcinkostrzewa.online` changes it should be altered everywhere in the repo.
+
+1. In `.bashrc` add lines:
+    ```sh
+    alias amazon_karczek_path="~/Amazon-Product-Improvement"
+    alias cd_amazon_karczek="cd $amazon_karczek_path"
+    alias karczrun="$cd_amazon_karczek && docker compose down && git pull && docker compose --profile full up -d"
+    alias karczsee="$cd_amazon_karczek && docker compose logs -f"
+    ```
+    and run `. .bash_rc`.
+2. Clone a reporsitory to the proper folder and checkout to `production`:
+    ```sh
+    cd_amazon_karczek
+    cd ..
+    git clone https://github.com/maciejkar/Amazon-Product-Improvement.git
+    git checkout production
+    ```
+3. Add certificate with `certbot` along with a hook to copy files it to `./certs`:
+   ```sh
+   sudo certbot certonly --standalone -d marcinkostrzewa.online -d www.marcinkostrzewa.online --deploy-hook "cp -r /etc/letsencrypt/live/marcinkostrzewa.com $amazon_karczek_path/certs"
+   ```
+4. Make sure the secrets from `.github/workflows/deploy.yaml` are set correctly.
+
+### Actions
+
+- Run github workflow to automatically deploy the app.
+- Containers outpt can be easily checket by logging in to the server via ssh and running `karczsee`.
+</details>
 
 ## Technologies
 

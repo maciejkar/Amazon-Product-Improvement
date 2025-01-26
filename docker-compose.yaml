@@ -10,12 +10,19 @@ services:
     volumes:
       - ./app:/home/app
     entrypoint: ["sh", "/home/app/entrypoint.sh"]
+    profiles:
+      - dev
+      - full
 
   nginx:
     image: nginx:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/ssl
+    profiles:
+      - full
     depends_on:
       - app
