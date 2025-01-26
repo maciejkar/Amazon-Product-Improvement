@@ -66,14 +66,16 @@ class ProductAnalyzer:
         if not self.llm_chain:
             raise ValueError("LLM Chain not set properly.")
         if isinstance(data["rating"], str):
-            data["rating"] = int(data["rating"])
+            rating = int(data["rating"])
+        else:
+            rating = -1
 
         try:
             context = {
                 "title": data["product"],
                 "category": data.get("category", "No category available"),
                 "reviews_analysis": self._prepare_review_analysis(data["comments"]),
-                "average_rating": data["rating"] if data["rating"] > 0 else "Unknown",
+                "average_rating": rating if rating > 0 else "Unknown",
             }
 
             LOGGER.info("Running Gemini analysis...")

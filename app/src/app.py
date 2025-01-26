@@ -25,7 +25,7 @@ class AppManager:
 
     @classmethod
     def set_basic_config(cls) -> None:
-        title = "Product Improvement Analyzer"
+        title = "Amazon Product Improvement Analyzer"
         icon = "📊"
         st.set_page_config(page_title=title, page_icon=icon, layout="wide")
         with open(settings.CSS_PATH) as f:
