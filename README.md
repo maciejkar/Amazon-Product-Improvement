@@ -25,14 +25,9 @@ In the main directory run
 ```sh
 docker compose --profile dev up
 ```
-As always, you need to run a `docker compose build` flag to build the image for the first time.
+As always, you need to run a `docker compose --profile dev build` flag to build the image for the first time.
 
-
-Open `localhost:80` then.
-
-#### Issues
-
-❗ Sometimes logging to Amazon does not work, but after container restart everything is fine.
+Open `localhost:8501` then.
 
 ### B. Locally
 
@@ -57,9 +52,9 @@ Log in to the VPS server via ssh, create a user and do the following steps. Note
 
 1. In `.bashrc` add lines:
     ```sh
-    alias amazon_karczek_path="~/Amazon-Product-Improvement"
-    alias cd_amazon_karczek="cd $amazon_karczek_path"
-    alias karczrun="$cd_amazon_karczek && docker compose --profile full down && git pull && docker compose --profile full up -d --build"
+    amazon_karczek_path="~/Amazon-Product-Improvement"
+    alias cd_amazon_karczek='cd $amazon_karczek_path'
+    alias karczrun='$cd_amazon_karczek && docker compose --profile full down && git pull && docker compose --profile full up -d --build'
     ```
     and run `. .bash_rc`.
 2. Clone a reporsitory to the proper folder and checkout to `production`:

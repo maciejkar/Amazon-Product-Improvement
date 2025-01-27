@@ -156,13 +156,6 @@ class AmazonScraper:
                 By.XPATH, "//div[@id='wayfinding-breadcrumbs_feature_div']//li[1]"
             )
             details["category"] = category_el.text.strip()
-
-            # description = self.driver.find_element(
-            #     By.XPATH, "//div[@id='productDescription']"
-            # )
-
-            # LOGGER.info("-" + description.text.strip() + "-")
-
             rating_el = self.driver.find_element(
                 By.XPATH,
                 "//div[@id='averageCustomerReviews_feature_div']"

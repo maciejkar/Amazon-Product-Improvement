@@ -95,4 +95,7 @@ class ProductAnalyzer:
             context = {"comment": comm}
             review_text = self.templates["comment-template"].format(**context)
             reviews_analysis.append(review_text)
+
+        if not reviews_analysis:
+            raise LLMAnalysisError("No comments found")
         return "\n".join(reviews_analysis)

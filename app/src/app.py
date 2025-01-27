@@ -101,7 +101,7 @@ class AppManager:
 
     @staticmethod
     def _display_title() -> None:
-        title = "📱 Product Improvement Analyzer"
+        title = "📱 Amazon Product Improvement Analyzer"
         st.markdown(f"<p class='big-font'>{title}</p>", unsafe_allow_html=True)
         st.markdown("---")
 
