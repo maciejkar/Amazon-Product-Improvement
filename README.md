@@ -52,9 +52,11 @@ Log in to the VPS server via ssh, create a user and do the following steps. Note
 
 1. In `.bashrc` add lines:
     ```sh
-    amazon_karczek_path="~/Amazon-Product-Improvement"
+    amazon_karczek_path="/home/$USER/Amazon-Product-Improvement"
     alias cd_amazon_karczek='cd $amazon_karczek_path'
-    alias karczrun='$cd_amazon_karczek && docker compose --profile full down && git pull && docker compose --profile full up -d --build'
+    alias karczrun='cd_amazon_karczek; docker compose --profile full down; git pull; docker compose --profile full up -d --build'
+
+    alias karczsee='cd_amazon_karczek; docker compose --profile full logs -f'  # live logs
     ```
     and run `. .bash_rc`.
 2. Clone a reporsitory to the proper folder and checkout to `production`:
