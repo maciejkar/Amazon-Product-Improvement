@@ -4,16 +4,21 @@
 
 A tool that analyzes scrapes Amazon product reviews and suggests product improvements using LangChain and LLMs.
 
-## Features
+## License
+
+[![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](./LICENSE)
+
+## Details
+
+### Features
 
 - Product comments and details scraping from url
 - Product analysis using LangChain
 - Web interface built with Streamlit
 
-## License
+### Intrerface
 
-[![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](./LICENSE)
-
+![example](https://github.com/user-attachments/assets/ce126e46-509f-4378-a83b-f3f9192cab72)
 
 ## Development Setup
 
