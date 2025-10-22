@@ -2,7 +2,7 @@ import logging
 import random
 import re
 import time
-
+from typing import Optional, Tuple
 import undetected_chromedriver as uc  # type: ignore
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
@@ -75,8 +75,21 @@ class AmazonScraper:
         self._random_wait(min_time=2, max_time=4, explicit=True)
 
         navigated = False
-        while not navigated:
-            self._navigate_sign_in()
+        times = 0
+        while not navigated and times < 3:
+            try:
+                self._navigate_sign_in()
+            except NoSuchElementException:
+
+                LOGGER.warning("Sign-in navigation failed, retrying via direct URL.")
+                try:
+                    self.driver.get("https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0")
+                except WebDriverException:
+                    times += 1
+                    LOGGER.error("Direct navigation to sign-in page failed.")
+                # self.driver.get("https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0")
+                self._random_wait()
+                self._random_wait(min_time=2, max_time=4, explicit=True)
             try:
                 email_element = self.driver.find_element(By.ID, "ap_email")
             except NoSuchElementException:
@@ -86,8 +99,9 @@ class AmazonScraper:
             continue_button = self.driver.find_element(By.ID, "continue")
             continue_button.click()
             navigated = True
-            self._random_wait()
+            self._random_wait(explicit=True)
 
+        
         password_element = self.driver.find_element(By.ID, "ap_password")
         password_element.clear()
         password_element.send_keys(self.password)
@@ -102,10 +116,14 @@ class AmazonScraper:
             raise Exception("Login failed. Could not find logged-in element.")
 
     def _navigate_sign_in(self) -> None:
-        sign_in_element = self.driver.find_element(
-            By.CSS_SELECTOR, 'a[data-nav-role="signin"]'
-        )
-        sign_in_element.click()
+        try:
+            self.driver.find_element(
+                By.CSS_SELECTOR, 'a[data-nav-role="signin"]'
+            ).click()
+        except NoSuchElementException:
+            self.driver.find_element(
+                By.ID, "nav-flyout-ya-signin"
+            ).click()
         self._random_wait(explicit=True)
 
     def close_connection(self) -> None:
@@ -115,7 +133,9 @@ class AmazonScraper:
     def fetch_product_data(
         self, product_url: str, max_review_pages: int
     ) -> dict[str, str | float | list[str]]:
-        product_url = self._cleanse_url(product_url)
+        product_url, _ = self._cleanse_url(product_url)
+        if not product_url:
+            raise ScrapingError("Invalid URL")
         details = self.fetch_product_details(product_url)
         comments = self.fetch_product_comments(product_url, max_review_pages)
         return {
@@ -128,13 +148,13 @@ class AmazonScraper:
         }
 
     @staticmethod
-    def _cleanse_url(url: str) -> str:
+    def _cleanse_url(url: str) -> Tuple[str, Optional[str]]:
         match = re.search(r"/dp/([A-Z0-9]{10})", url)
         if match:
             product_id = match.group(1)
-            return f"https://www.amazon.com/dp/{product_id}"
+            return f"https://www.amazon.pl/dp/{product_id}", product_id
         else:
-            return "Invalid URL format"
+            return "Invalid URL format", None
 
     def fetch_product_details(self, product_url: str) -> dict[str, str | float]:
         if not self.driver:
@@ -161,7 +181,7 @@ class AmazonScraper:
                 "//div[@id='averageCustomerReviews_feature_div']"
                 "//span[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
             )
-            details["rating"] = float(rating_el.text.strip())
+            details["rating"] = float(rating_el.text.strip().replace(",", "."))
         except NoSuchElementException as e:
             LOGGER.error(f"Error fetching details: {e}")
         return details
@@ -170,9 +190,11 @@ class AmazonScraper:
         if not self.driver:
             raise ScrapingError("Connection not opened. Call open_connection() first.")
         try:
-            self.driver.get(product_url)
+            _, product_id = self._cleanse_url(product_url)
+            self.driver.get(f"https://www.amazon.pl/product-reviews/{product_id}/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews")
             self._random_wait()
-            self._navigate_to_reviews()
+            # self._navigate_to_reviews()
+            
             page_ix = 1
             comments: list[str] = []
             has_next = True
@@ -198,9 +220,9 @@ class AmazonScraper:
             reviews_tab.click()
             self._random_wait()
         except NoSuchElementException:
-            LOGGER.warning(
-                "Could not find 'See all reviews' link. Falling back to product page comments."
-            )
+            LOGGER.warning("Reviews tab not found, staying on the current page.")
+            
+        LOGGER.debug(f"Navigated to reviews page. {self.driver.current_url}")
 
     def _extract_single_page_reviews(self) -> list[str]:
         self._random_wait(explicit=True)
@@ -215,6 +237,7 @@ class AmazonScraper:
             next_button = self.driver.find_element(
                 By.XPATH, "//ul[@class='a-pagination']//li[@class='a-last']/a"
             )
+            self._random_wait(explicit=True)
             next_button.click()
         except NoSuchElementException:
             return False

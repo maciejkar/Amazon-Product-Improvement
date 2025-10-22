@@ -1,5 +1,5 @@
 import streamlit as st
-
+import logging
 from src.analyzer import ProductAnalyzer
 from src.config import settings
 from src.fetcher import AmazonScraper
@@ -8,6 +8,8 @@ from src.logconf import setup_logging
 # NOTE: This file would need some refactor.
 # Current structure doesn't provide easy error handling
 
+
+LOGGER = logging.getLogger("app")
 
 class AppToolConnectionError(Exception):
     pass
@@ -137,7 +139,9 @@ class AppManager:
                     )
                 )
                 st.success("Product data loaded successfully!")
-        except Exception:
+        except Exception as e:
+            LOGGER.error(f"Error fetching product data: {str(e)}")
+            LOGGER.debug("Exception details:", exc_info=True)
             st.error("Error loading product data. Try to establish connection again.")
 
     @staticmethod

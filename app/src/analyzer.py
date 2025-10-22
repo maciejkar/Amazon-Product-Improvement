@@ -55,8 +55,8 @@ class ProductAnalyzer:
         )
 
         llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash-8b",
-            temperature=0.7,
+            model="gemini-2.5-flash",
+            temperature=0.7,    
             api_key=self.api_key,
         )
 
