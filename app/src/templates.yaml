@@ -20,6 +20,8 @@ system-prompt: |
   The table should contain up to 4 rows, each corresponding to an identified issue. Each row should contain the relevant information for that issue, and the output should be concise and clear.
   Do not elaborate unnecessarily—keep your answers focused and relevant.
 
+  Always return the output in the specified table format after that make sure that the table is not empty.
+
 
 summary-prompt: |
   Analyze the following product from Amazon and its reviews to suggest improvements:

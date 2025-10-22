@@ -31,7 +31,7 @@ class ProductAnalyzer:
 
         self.llm_chain = self._get_chain()
 
-    def _get_chain(self) -> LLMChain:
+    def _get_chain(self) :
         if not self.api_key:
             raise ValueError("API Key not set")
 
@@ -55,12 +55,12 @@ class ProductAnalyzer:
         )
 
         llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash-8b",
-            temperature=0.7,
+            model="gemini-2.5-flash-lite",
+            temperature=0.7,    
             api_key=self.api_key,
         )
 
-        return LLMChain(llm=llm, prompt=prompt)
+        return prompt | llm
 
     def analyze_product(self, data: dict[str, str | float | list[str]]) -> str:
         if not self.llm_chain:
@@ -79,9 +79,11 @@ class ProductAnalyzer:
             }
 
             LOGGER.info("Running Gemini analysis...")
-            result = self.llm_chain.run(context)
+            LOGGER.debug(context)
+            result = self.llm_chain.invoke(context)
+            LOGGER.debug(result)
             LOGGER.info("Analysis complete")
-            return result
+            return result.content
         except Exception as e:
             LOGGER.error(f"LLM Chain error: {str(e)}")
             raise LLMAnalysisError()

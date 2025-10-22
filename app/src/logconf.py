@@ -17,6 +17,7 @@ def setup_logging():
     loggers = {
         "llm": logging.DEBUG,
         "fetcher": logging.DEBUG,
+        "app": logging.DEBUG,
     }
 
     for logger_name, level in loggers.items():
