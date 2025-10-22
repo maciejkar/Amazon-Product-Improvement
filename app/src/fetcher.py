@@ -84,16 +84,19 @@ class AmazonScraper:
                 LOGGER.warning("Sign-in navigation failed, retrying via direct URL.")
                 try:
                     self.driver.get("https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0")
-                except WebDriverException:
+                except WebDriverException as e:
                     times += 1
-                    LOGGER.error("Direct navigation to sign-in page failed.")
+                    LOGGER.error("Direct navigation to sign-in page failed.", exc_info=e)
+
                 # self.driver.get("https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0")
                 self._random_wait()
                 self._random_wait(min_time=2, max_time=4, explicit=True)
             try:
-                email_element = self.driver.find_element(By.ID, "ap_email")
-            except NoSuchElementException:
-                continue
+                email_element = self.driver.find_element(By.ID, "ap_email_login")
+            except NoSuchElementException as e:
+                times += 1
+                LOGGER.error("Email input not found on sign-in page.", exc_info=e)
+                
             email_element.clear()
             email_element.send_keys(self.email)
             continue_button = self.driver.find_element(By.ID, "continue")
@@ -191,7 +194,7 @@ class AmazonScraper:
             raise ScrapingError("Connection not opened. Call open_connection() first.")
         try:
             _, product_id = self._cleanse_url(product_url)
-            self.driver.get(f"https://www.amazon.pl/product-reviews/{product_id}/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews")
+            self.driver.get(f"https://www.amazon.com/product-reviews/{product_id}/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews")
             self._random_wait()
             # self._navigate_to_reviews()
             

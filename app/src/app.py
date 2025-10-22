@@ -114,7 +114,7 @@ class AppManager:
             product_url = st.text_input("Enter product URL:", "")
         with col2:
             max_pages = st.number_input(
-                "Max pages to scrape:", min_value=1, step=1, value=5
+                "Max pages to scrape:", min_value=1, step=1, value=2
             )
         if st.button("Run analysis"):
             if hasattr(st.session_state, "products_data"):
